@@ -1,0 +1,16 @@
+tmp
+bin
+build
+*.zip
+.apt_generated
+*.class
+*.merge-left*
+*.merge-right*
+*.mine
+*.prej
+*.pyc
+*.pyo
+*.working
+.svn
+_svn
+svn-commit*.tmp

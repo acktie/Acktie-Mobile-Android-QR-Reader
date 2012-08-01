@@ -1,0 +1,18 @@
+#
+# this is your module manifest and used by Titanium
+# during compilation, packaging, distribution, etc.
+#
+version: 1.0
+apiversion: 2
+description: My module
+author: Your Name
+license: Specify your license
+copyright: Copyright (c) 2012 by Your Company
+
+
+# these should not be edited
+name: acktiemobileandroidqr
+moduleid: com.acktie.mobile.android.qr
+guid: cd56affd-21e4-425e-9c8a-34e6ddeb4541
+platform: android
+minsdk: 1.8.2

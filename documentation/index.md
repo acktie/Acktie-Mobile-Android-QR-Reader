@@ -261,6 +261,10 @@ To ensure your QR code is transalated correctly.  It is advised that you encode 
 
 Here is of an example of using Kaywa to specify the UTF-8 BOM.
 
+http://qr.kaywa.com/img.php?s=8&d=%EF%BB%BF<Your QR Code Data>
+
+Example:
+
 http://qr.kaywa.com/img.php?s=8&d=%EF%BB%BF{%22name%22:%22%E7%8E%89%E7%B1%B3%22} 
 
 ## Change Log

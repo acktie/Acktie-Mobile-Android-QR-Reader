@@ -2,6 +2,8 @@ package com.acktie.mobile.android.qr;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.MalformedURLException;
+import java.net.URI;
 import java.net.URL;
 import java.net.URLConnection;
 
@@ -12,12 +14,17 @@ import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.TiDimension;
 import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.util.TiConvert;
+import org.appcelerator.titanium.util.TiFileHelper;
 import org.appcelerator.titanium.view.TiCompositeLayout;
 import org.appcelerator.titanium.view.TiUIView;
 import org.appcelerator.titanium.view.TiCompositeLayout.LayoutArrangement;
 
+import android.app.Activity;
 import android.content.Context;
 import android.content.pm.ActivityInfo;
+import android.content.pm.PackageInfo;
+import android.content.pm.PackageManager;
+import android.content.pm.PackageManager.NameNotFoundException;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
@@ -38,12 +45,12 @@ public class QRCodeView extends TiUIView {
 
 	CameraSurfaceView cameraPreview = null;
 	CameraManager cameraManager = null;
+	
 
 	private static int[] QR_CODE_SYMBOL = { Symbol.QRCODE };
 
 	public QRCodeView(TiViewProxy proxy, final CameraManager cameraManager,
-			boolean useJISEncoding, boolean continuous,
-			boolean scanQRFromImageCapture) {
+			InputArgs args) {
 		super(proxy);
 		this.cameraManager = cameraManager;
 		final QRCodeViewProxy qrCodeViewProxy = (QRCodeViewProxy) proxy;
@@ -66,51 +73,14 @@ public class QRCodeView extends TiUIView {
 				arrangement);
 
 		CameraCallback cameraCallback = new CameraCallback(QR_CODE_SYMBOL,
-				qrCodeViewProxy, cameraManager, useJISEncoding, continuous,
-				scanQRFromImageCapture);
+				qrCodeViewProxy, cameraManager, args);
 		cameraManager.setCameraCallback(cameraCallback);
 		cameraPreview = new CameraSurfaceView(proxy.getActivity(),
 				cameraCallback, cameraManager);
 
-		/*
-		 * TiCompositeLayout.LayoutParams previewLayoutParams = new
-		 * TiCompositeLayout.LayoutParams(); previewLayoutParams.optionWidth =
-		 * new TiDimension("100%", TiDimension.TYPE_WIDTH);
-		 * previewLayoutParams.optionHeight = new TiDimension("90%",
-		 * TiDimension.TYPE_HEIGHT); previewLayoutParams.optionTop = new
-		 * TiDimension(0, TiDimension.TYPE_TOP);
-		 * 
-		 * Button closeButton = new Button(proxy.getActivity());
-		 * closeButton.setText("Close"); TiCompositeLayout.LayoutParams
-		 * closeButtonLayoutParams = new TiCompositeLayout.LayoutParams();
-		 * closeButtonLayoutParams.optionBottom = new TiDimension("1%",
-		 * TiDimension.TYPE_BOTTOM); closeButtonLayoutParams.optionLeft = new
-		 * TiDimension("1%", TiDimension.TYPE_LEFT);
-		 * 
-		 * closeButton.setOnClickListener(new View.OnClickListener() { public
-		 * void onClick(View v) { qrCodeViewProxy.closeCallback(); } });
-		 * 
-		 * 
-		 * ToggleButton lightSwitch = new ToggleButton(proxy.getActivity());
-		 * TiCompositeLayout.LayoutParams lightSwitchLayoutParams = new
-		 * TiCompositeLayout.LayoutParams();
-		 * lightSwitchLayoutParams.optionBottom = new TiDimension("1%",
-		 * TiDimension.TYPE_BOTTOM); lightSwitchLayoutParams.optionRight = new
-		 * TiDimension("1%", TiDimension.TYPE_RIGHT);
-		 * 
-		 * lightSwitch.setOnCheckedChangeListener(new
-		 * CompoundButton.OnCheckedChangeListener() { public void
-		 * onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-		 * cameraManager.toggleTorch(); } });
-		 * 
-		 * layout.addView(lightSwitch, lightSwitchLayoutParams);
-		 * layout.addView(closeButton, closeButtonLayoutParams);
-		 * layout.addView(cameraPreview, previewLayoutParams);
-		 */
-
 		layout.addView(cameraPreview);
-		// layout.addView(new DrawOnTop(proxy.getActivity()));
-		URL urlPath = getClass().getResource("/assets/Center-Blue.png");
+		
+		URL urlPath = getImageURLPath(args);
 
 		if (urlPath != null) {
 			try {
@@ -119,37 +89,43 @@ public class QRCodeView extends TiUIView {
 						.getInputStream());
 				ImageView imageView = new ImageView(proxy.getActivity());
 				imageView.setImageBitmap(myBitmap);
+				imageView.setAlpha(convertFloatToIntForAlpha(args.getAlpha()));
 				layout.addView(imageView);
 			} catch (IOException e) {
-				// Log?
+				e.printStackTrace();
+				// TODO: Log?
 			}
 		}
 
 		setNativeView(layout);
 	}
 
-	public void processProperties(KrollDict d) {
-		super.processProperties(d);
+	private URL getImageURLPath(InputArgs args) {
+		String imageName = args.getImageName();
+		URL url = null;
+		if(imageName != null)
+		{
+			url = getClass().getResource("/assets/Resources/modules/com.acktie.mobile.android.qr/" + imageName);
+		}
+		else
+		{
+			String color = args.getColor();
+			String layout = args.getLayout();
+			
+			if(color != null && layout != null)
+			{
+				url = getClass().getResource("/assets/" + layout + "-" + color + ".png");
+			}
+		}
+		
+		return url;
 	}
-
-	class DrawOnTop extends View {
-
-		public DrawOnTop(Context context) {
-			super(context);
-			// TODO Auto-generated constructor stub
-		}
-
-		@Override
-		protected void onDraw(Canvas canvas) {
-			// TODO Auto-generated method stub
-
-			Paint paint = new Paint();
-			paint.setStyle(Paint.Style.FILL);
-			paint.setColor(Color.BLACK);
-			canvas.drawText("Test Text", 10, 10, paint);
-
-			super.onDraw(canvas);
-		}
-
+	
+	private int convertFloatToIntForAlpha(float floatAlpha)
+	{
+		float maxAlpha = 255.0f;
+		
+		return (int) (maxAlpha * floatAlpha);
+		
 	}
 }

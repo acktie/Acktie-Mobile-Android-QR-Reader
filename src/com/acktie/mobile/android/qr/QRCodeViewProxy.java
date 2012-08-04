@@ -27,24 +27,7 @@ public class QRCodeViewProxy extends TiViewProxy {
 	private static final String LCAT = "QRCodeViewProxy";
 	private static final boolean DBG = TiConfig.LOGD;
 	private CameraManager cameraManager = null;
-	
-	private static final String CONTINUOUS = "continuous";
-	private boolean continuous = false;
-	
-	private static final String SCAN_FROM_IMAGE_CAPTURE = "scanQRFromImageCapture";
-	private boolean scanQRFromImageCapture = false;
-	
-	private static final String USE_JIS_ENCODING = "useJISEncoding";
-	private boolean useJISEncoding = false;
-	
-	private static final String SUCCESS_CALLBACK = "success";
-	private KrollFunction successCallback = null;
-	
-	private static final String CANCEL_CALLBACK = "cancel";
-	private KrollFunction cancelCallback = null;
-	
-	private static final String ERROR_CALLBACK = "error";
-	private KrollFunction errorCallback = null;
+	private InputArgs args = null;
 	
 	/**
 	 * 
@@ -60,7 +43,7 @@ public class QRCodeViewProxy extends TiViewProxy {
 	public TiUIView createView(Activity arg0) {
 		Log.d(LCAT, "Creating QRCodeView");
 		cameraManager = new CameraManager();
-		TiUIView view = new QRCodeView(this, cameraManager, useJISEncoding, continuous, scanQRFromImageCapture);
+		TiUIView view = new QRCodeView(this, cameraManager, args);
 		view.getLayoutParams().autoFillsHeight = true;
 		view.getLayoutParams().autoFillsWidth = true;
 		return view;
@@ -72,23 +55,45 @@ public class QRCodeViewProxy extends TiViewProxy {
 	{
 		super.handleCreationDict(options);
 		
-		if (hasProperty(SUCCESS_CALLBACK)) {
-			successCallback = (KrollFunction) getProperty(SUCCESS_CALLBACK);
+		args = new InputArgs();
+		
+		if (hasProperty(InputArgs.SUCCESS_CALLBACK)) {
+			args.setSuccessCallback((KrollFunction) getProperty(InputArgs.SUCCESS_CALLBACK));
 		}
-		if (hasProperty(CANCEL_CALLBACK)) {
-			cancelCallback = (KrollFunction) getProperty(CANCEL_CALLBACK);
+		if (hasProperty(InputArgs.CANCEL_CALLBACK)) {
+			args.setCancelCallback((KrollFunction) getProperty(InputArgs.CANCEL_CALLBACK));
 		}
-		if (hasProperty(ERROR_CALLBACK)) {
-			errorCallback = (KrollFunction) getProperty(ERROR_CALLBACK);
+		if (hasProperty(InputArgs.ERROR_CALLBACK)) {
+			args.setErrorCallback((KrollFunction) getProperty(InputArgs.ERROR_CALLBACK));
 		}
-		if (hasProperty(CONTINUOUS)) {
-			continuous = TiConvert.toBoolean(getProperty(CONTINUOUS));
+		if (hasProperty(InputArgs.CONTINUOUS)) {
+			args.setContinuous(TiConvert.toBoolean(getProperty(InputArgs.CONTINUOUS)));
 		}
-		if (hasProperty(USE_JIS_ENCODING)) {
-			useJISEncoding = TiConvert.toBoolean(getProperty(USE_JIS_ENCODING));
+		if (hasProperty(InputArgs.USE_JIS_ENCODING)) {
+			args.setUseJISEncoding(TiConvert.toBoolean(getProperty(InputArgs.USE_JIS_ENCODING)));
 		}
-		if (hasProperty(SCAN_FROM_IMAGE_CAPTURE)) {
-			scanQRFromImageCapture = TiConvert.toBoolean(getProperty(SCAN_FROM_IMAGE_CAPTURE));
+		if (hasProperty(InputArgs.SCAN_FROM_IMAGE_CAPTURE)) {
+			args.setScanQRFromImageCapture(TiConvert.toBoolean(getProperty(InputArgs.SCAN_FROM_IMAGE_CAPTURE)));
+		}
+		if (hasProperty(InputArgs.OVERLAY)) {
+			HashMap overlay = (HashMap) getProperty(InputArgs.OVERLAY);
+			
+			if(overlay.containsKey(InputArgs.OVERLAY_COLOR))
+			{
+				args.setColor((String) overlay.get(InputArgs.OVERLAY_COLOR));
+			}
+			if(overlay.containsKey(InputArgs.OVERLAY_LAYOUT))
+			{
+				args.setLayout((String) overlay.get(InputArgs.OVERLAY_LAYOUT));
+			}
+			if(overlay.containsKey(InputArgs.OVERLAY_IMAGE_NAME))
+			{
+				args.setImageName((String) overlay.get(InputArgs.OVERLAY_IMAGE_NAME));
+			}
+			if(overlay.containsKey(InputArgs.OVERLAY_ALPHA))
+			{
+				args.setAlpha(TiConvert.toFloat(overlay.get(InputArgs.OVERLAY_ALPHA)));
+			}
 		}
 	}
 	
@@ -107,9 +112,9 @@ public class QRCodeViewProxy extends TiViewProxy {
 	@SuppressWarnings("rawtypes")
 	public void successCallback(HashMap results)
 	{
-		if(successCallback != null)
+		if(args.getSuccessCallback() != null)
 		{
-			successCallback.callAsync(getKrollObject(), results);
+			args.getSuccessCallback().callAsync(getKrollObject(), results);
 		}
 	}
 	
@@ -118,18 +123,18 @@ public class QRCodeViewProxy extends TiViewProxy {
 	{
 		cameraManager.stop();
 		
-		if(cancelCallback != null)
+		if(args.getCancelCallback() != null)
 		{
-			cancelCallback.callAsync(getKrollObject(), new HashMap());
+			args.getCancelCallback().callAsync(getKrollObject(), new HashMap());
 		}
 	}
 	
 	@SuppressWarnings("rawtypes")
 	public void errorCallback()
 	{
-		if(errorCallback != null)
+		if(args.getErrorCallback() != null)
 		{
-			errorCallback.callAsync(getKrollObject(), new HashMap());
+			args.getErrorCallback().callAsync(getKrollObject(), new HashMap());
 		}
 	}
 	

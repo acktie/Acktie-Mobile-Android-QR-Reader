@@ -3,6 +3,7 @@ package com.acktie.mobile.android.qr.camera;
 import java.nio.charset.Charset;
 import java.util.HashMap;
 
+import com.acktie.mobile.android.qr.InputArgs;
 import com.acktie.mobile.android.qr.QRCodeViewProxy;
 import com.acktie.mobile.android.qr.zbar.ZBarManager;
 
@@ -19,22 +20,18 @@ public class CameraCallback implements PreviewCallback {
 	private CameraManager cameraManager = null;
 	private ImageScanner scanner = null;
 	private QRCodeViewProxy viewProxy = null;
-	private boolean useJISEncoding = false;
-	private boolean continuous = false;
-	private boolean scanQRFromImageCapture = false;
+	private InputArgs args = null;
 	private long lastQRDetected = System.currentTimeMillis();
 	private boolean pictureTaken = false;
 
 	public CameraCallback(int[] symbolsToScan,
-			QRCodeViewProxy viewProxy, CameraManager cameraManager, boolean useJISEncoding, boolean continuous, boolean scanQRFromImageCapture) {
+			QRCodeViewProxy viewProxy, CameraManager cameraManager, InputArgs args) {
 		
 		/* Instance barcode scanner */
 		scanner = ZBarManager.getImageScannerInstance(symbolsToScan);
 		this.cameraManager = cameraManager;
 		this.viewProxy = viewProxy;
-		this.useJISEncoding = useJISEncoding;
-		this.continuous = continuous;
-		this.scanQRFromImageCapture = scanQRFromImageCapture;
+		this.args = args;
 	}
 	
 	@Override
@@ -43,7 +40,7 @@ public class CameraCallback implements PreviewCallback {
 		// to understand why the image was not processed
 		if (hasEnoughTimeElapsedToScanNextImage()) {
 			return;
-		} else if (scanQRFromImageCapture && !pictureTaken) {
+		} else if (args.isScanQRFromImageCapture() && !pictureTaken) {
 			return;
 		}
 		
@@ -59,7 +56,14 @@ public class CameraCallback implements PreviewCallback {
 			return;
 		}
 		
-		Camera.Parameters parameters = camera.getParameters();
+		Camera.Parameters parameters = cameraManager.getCameraParameters();
+		
+		// If null, likely called after camera has been released.
+		if(parameters == null)
+		{
+			return;
+		}
+		
 		Size size = parameters.getPreviewSize();
 
 		// Supported image formats
@@ -87,7 +91,7 @@ public class CameraCallback implements PreviewCallback {
 				Charset cs = Charset.forName("UTF-8");;
 				String resultData = new String(symbol.getData().getBytes(), cs);
 				
-				if(useJISEncoding)
+				if(args.isUseJISEncoding())
 				{
 					cs = Charset.forName("Shift_JIS");
 					resultData = new String(symbol.getData().getBytes(), cs);
@@ -95,7 +99,7 @@ public class CameraCallback implements PreviewCallback {
 
 				System.out.println(resultData);
 
-				if(!continuous)
+				if(!args.isContinuous())
 				{
 					cameraManager.stop();
 				}

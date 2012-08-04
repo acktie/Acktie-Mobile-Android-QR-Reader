@@ -13,9 +13,6 @@
 			<uses-feature android:name="android.hardware.camera" />
 			<uses-feature android:name="android.hardware.camera.autofocus" />
 			<uses-feature android:name="android.hardware.camera.flash" />
-			<application>
-				<activity android:name="com.acktie.mobile.android.qr.LaunchPhotoAlbum" />
-			</application>
 		</manifest>
 	</android>
 	<mobileweb>

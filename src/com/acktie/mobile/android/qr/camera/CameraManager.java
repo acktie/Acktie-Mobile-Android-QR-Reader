@@ -10,7 +10,7 @@ import android.hardware.Camera;
 public class CameraManager {
 	private static final String LCAT = "AcktiemobileandroidqrModule:CameraManager";
 	private static final boolean DBG = TiConfig.LOGD;
-	
+
 	private CameraCallback cameraCallback = null;
 	private Camera camera = null;
 	private boolean isStopped = true;
@@ -20,7 +20,7 @@ public class CameraManager {
 		this();
 		this.cameraCallback = cameraCallback;
 	}
-	
+
 	public CameraManager() {
 		this.camera = getCamera();
 	}
@@ -28,21 +28,26 @@ public class CameraManager {
 	// http://stackoverflow.com/questions/5540981/picture-distorted-with-camera-and-getoptimalpreviewsize
 	public Camera.Size getBestPreviewSize(Camera camera, int width, int height) {
 		Camera.Size result = null;
-		Camera.Parameters p = camera.getParameters();
-		for (Camera.Size size : p.getSupportedPreviewSizes()) {
-			if (size.width <= width && size.height <= height) {
-				if (result == null) {
-					result = size;
-				} else {
-					int resultArea = result.width * result.height;
-					int newArea = size.width * size.height;
+		Camera.Parameters parameters = getCameraParameters();
 
-					if (newArea > resultArea) {
+		// If null, likely called after camera has been released.
+		if (parameters != null) {
+			for (Camera.Size size : parameters.getSupportedPreviewSizes()) {
+				if (size.width <= width && size.height <= height) {
+					if (result == null) {
 						result = size;
+					} else {
+						int resultArea = result.width * result.height;
+						int newArea = size.width * size.height;
+
+						if (newArea > resultArea) {
+							result = size;
+						}
 					}
 				}
 			}
 		}
+
 		return result;
 	}
 
@@ -57,32 +62,46 @@ public class CameraManager {
 	}
 
 	public void turnOnTorch() {
-		Camera.Parameters parameters = camera.getParameters();
-		List<String> flashModes = parameters.getSupportedFlashModes();
-		if (flashModes.contains(Camera.Parameters.FLASH_MODE_TORCH)) {
-			parameters.setFlashMode(Camera.Parameters.FLASH_MODE_TORCH);
+		Camera.Parameters parameters = getCameraParameters();
+
+		if (parameters != null) {
+			List<String> flashModes = parameters.getSupportedFlashModes();
+			if (flashModes.contains(Camera.Parameters.FLASH_MODE_TORCH)) {
+				parameters.setFlashMode(Camera.Parameters.FLASH_MODE_TORCH);
+			}
+			camera.setParameters(parameters);
+			torchOn = true;
 		}
-		camera.setParameters(parameters);
-		torchOn = true;
 	}
 
 	public void turnOffTorch() {
-		Camera.Parameters parameters = camera.getParameters();
-		List<String> flashModes = parameters.getSupportedFlashModes();
-		if (flashModes.contains(Camera.Parameters.FLASH_MODE_OFF)) {
-			parameters.setFlashMode(Camera.Parameters.FLASH_MODE_OFF);
+		Camera.Parameters parameters = getCameraParameters();
+
+		if (parameters != null) {
+			List<String> flashModes = parameters.getSupportedFlashModes();
+			if (flashModes.contains(Camera.Parameters.FLASH_MODE_OFF)) {
+				parameters.setFlashMode(Camera.Parameters.FLASH_MODE_OFF);
+			}
+			camera.setParameters(parameters);
+			torchOn = false;
 		}
-		camera.setParameters(parameters);
-		torchOn = false;
 	}
 
 	public void enableAutoFocus() {
-		Camera.Parameters parameters = camera.getParameters();
-		List<String> focusModes = parameters.getSupportedFocusModes();
-		if (focusModes.contains(Camera.Parameters.FOCUS_MODE_AUTO)) {
-			parameters.setFocusMode(Camera.Parameters.FOCUS_MODE_AUTO);
+		Camera.Parameters parameters = getCameraParameters();
+
+		if (parameters != null) {
+			List<String> focusModes = parameters.getSupportedFocusModes();
+			if (focusModes
+					.contains(Camera.Parameters.FOCUS_MODE_CONTINUOUS_VIDEO)) {
+				parameters
+						.setFocusMode(Camera.Parameters.FOCUS_MODE_CONTINUOUS_VIDEO);
+			} else if (focusModes.contains(Camera.Parameters.FOCUS_MODE_AUTO)) {
+				parameters.setFocusMode(Camera.Parameters.FOCUS_MODE_AUTO);
+			}
+
+			camera.setParameters(parameters);
 		}
-		camera.setParameters(parameters);
 	}
 
 	public void stop() {
@@ -103,14 +122,13 @@ public class CameraManager {
 
 		return camera;
 	}
-	
+
 	public void takePicture() {
-		if (isStopped ) {
+		if (isStopped) {
 			return;
-		}
-		else if(cameraCallback == null)
-		{
-			Log.d(LCAT, "Must pass CameraManager a CameraCallback before calling takePicture.");
+		} else if (cameraCallback == null) {
+			Log.d(LCAT,
+					"Must pass CameraManager a CameraCallback before calling takePicture.");
 			return;
 		}
 
@@ -123,5 +141,17 @@ public class CameraManager {
 
 	public void setCameraCallback(CameraCallback cameraCallback) {
 		this.cameraCallback = cameraCallback;
+	}
+
+	public Camera.Parameters getCameraParameters() {
+		Camera.Parameters parameters = null;
+		try {
+			parameters = camera.getParameters();
+		} catch (RuntimeException re) {
+			// Ignoring exception. It will be thrown if the camera has been
+			// released by another thread.
+		}
+
+		return parameters;
 	}
 }

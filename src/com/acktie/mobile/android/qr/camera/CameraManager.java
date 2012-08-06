@@ -6,6 +6,8 @@ import org.appcelerator.kroll.common.TiConfig;
 import org.appcelerator.kroll.common.Log;
 
 import android.hardware.Camera;
+import android.hardware.Camera.AutoFocusCallback;
+import android.os.Handler;
 
 public class CameraManager {
 	private static final String LCAT = "AcktiemobileandroidqrModule:CameraManager";
@@ -15,6 +17,7 @@ public class CameraManager {
 	private Camera camera = null;
 	private boolean isStopped = true;
 	private boolean torchOn = false;
+	private Handler autoFocusHandler = null;
 
 	public CameraManager(CameraCallback cameraCallback) {
 		this();
@@ -88,20 +91,7 @@ public class CameraManager {
 	}
 
 	public void enableAutoFocus() {
-		Camera.Parameters parameters = getCameraParameters();
-
-		if (parameters != null) {
-			List<String> focusModes = parameters.getSupportedFocusModes();
-			if (focusModes
-					.contains(Camera.Parameters.FOCUS_MODE_CONTINUOUS_VIDEO)) {
-				parameters
-						.setFocusMode(Camera.Parameters.FOCUS_MODE_CONTINUOUS_VIDEO);
-			} else if (focusModes.contains(Camera.Parameters.FOCUS_MODE_AUTO)) {
-				parameters.setFocusMode(Camera.Parameters.FOCUS_MODE_AUTO);
-			}
-
-			camera.setParameters(parameters);
-		}
+		camera.autoFocus(autoFocusCB);
 	}
 
 	public void stop() {
@@ -154,4 +144,25 @@ public class CameraManager {
 
 		return parameters;
 	}
+	
+    // Mimic continuous auto-focusing
+    private AutoFocusCallback autoFocusCB = new AutoFocusCallback() {
+        public void onAutoFocus(boolean success, Camera camera) {
+        	if(autoFocusHandler == null)
+        	{
+        		autoFocusHandler = new Handler();
+        	}
+        	
+            autoFocusHandler.postDelayed(doAutoFocus, 1000);
+        }
+    };
+    
+	private Runnable doAutoFocus = new Runnable() {
+        public void run() {
+            if (!isStopped)
+            {
+            	camera.autoFocus(autoFocusCB);
+            }       
+        }
+    };
 }

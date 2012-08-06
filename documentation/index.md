@@ -267,6 +267,15 @@ Example:
 
 http://qr.kaywa.com/img.php?s=8&d=%EF%BB%BF{%22name%22:%22%E7%8E%89%E7%B1%B3%22} 
 
+
+### Default Images (ones that come with the module) are not showing up
+It seems there is a bug in the build process where on a non-full build the module assests are not being copied over into the .apk.  As a result,
+the module will not display the overlays that come with the module.  Currently, the only way to fix this situation is to force a "full build" (e.g. delete
+the build/android directory or modify the tiapp.xml (add something save, remove it save)).
+
+NOTE: This issue does not affect the custom images (e.g. imageName) you provide in your mobile project.  Also, there is no adverse affect to your mobile application
+if the images are missing (other than the overlays not showing up).
+
 ## Change Log
 *  1.0 Initial Release
 

@@ -44,9 +44,6 @@ import android.provider.MediaStore;
 public class AcktiemobileandroidqrModule extends KrollModule {
 	
 	private static final String moduleId = "com.acktie.mobile.android.qr";
-	private static int[] QR_CODE_SYMBOL= {
-		Symbol.QRCODE
-	};
 	
 	static {
 		System.loadLibrary("iconv");
@@ -55,7 +52,6 @@ public class AcktiemobileandroidqrModule extends KrollModule {
 	// Standard Debugging variables
 	private static final String LCAT = "AcktiemobileandroidqrModule";
 	private static final boolean DBG = TiConfig.LOGD;
-	private int requestCode = 0;
 
 	// You can define constants with @Kroll.constant, for example:
 	// @Kroll.constant public static final String EXTERNAL_NAME = value;
@@ -70,145 +66,6 @@ public class AcktiemobileandroidqrModule extends KrollModule {
 		// put module init code that needs to run when the application is
 		// created
 	}
-
-	@Kroll.method
-	public void scanQRFromAlbum(KrollDict options) {
-		if (DBG) {
-			Log.d(LCAT, "scanQRFromAlbum called");
-		}
-
-		final String SUCCESS_CALLBACK = "success";
-		final KrollFunction successCallback;
-		
-		final String CANCEL_CALLBACK = "cancel";
-		final KrollFunction cancelCallback;
-		
-		if (hasProperty(SUCCESS_CALLBACK)) {
-			successCallback = (KrollFunction) getProperty(SUCCESS_CALLBACK);
-		}
-		else
-		{
-			successCallback = null;
-		}
-		
-		if (hasProperty(CANCEL_CALLBACK)) {
-			cancelCallback = (KrollFunction) getProperty(CANCEL_CALLBACK);
-		}
-		else
-		{
-			cancelCallback = null;
-		}
-		
-		Activity activity = TiApplication.getInstance().getCurrentActivity();
-		TiActivitySupport activitySupport = (TiActivitySupport) activity;
-
-		TiIntentWrapper galleryIntent = new TiIntentWrapper(new Intent());
-		galleryIntent.getIntent().setAction(Intent.ACTION_PICK);
-		galleryIntent.getIntent().setType("image/*");
-		galleryIntent.getIntent().addCategory(Intent.CATEGORY_DEFAULT);
-		galleryIntent
-				.setWindowId(TiIntentWrapper.createActivityName("GALLERY"));
-
-		final int code = activitySupport.getUniqueResultCode();
-		activitySupport.launchActivityForResult(galleryIntent.getIntent(),
-				code, new TiActivityResultHandler() {
-					Bitmap bitmap = null;
-					
-					public void onResult(Activity activity, int requestCode,
-							int resultCode, Intent data) {
-						Log.e(LCAT, "OnResult called: " + resultCode);
-						if (resultCode == Activity.RESULT_CANCELED) 
-						{
-							if(cancelCallback != null)
-							{
-								cancelCallback.callAsync(getKrollObject(), new HashMap());
-							}
-						} else {
-							String path = getRealPathFromURI(data.getData());
-							System.out.println("Image Path:" + path);
-							
-							if(path!= null)
-							{
-								bitmap = BitmapFactory.decodeFile(path);
-								int width = bitmap.getWidth();
-								int height = bitmap.getHeight();
-								bitmap.recycle();
-								bitmap = null;
-								
-								byte[] byteArray = null;
-								try {
-									byteArray = Files.toByteArray(new File(path));
-								} catch (IOException e) {
-									// TODO Auto-generated catch block
-									e.printStackTrace();
-								}
-
-								
-								ImageScanner scanner = ZBarManager.getImageScannerInstance(QR_CODE_SYMBOL);
-								
-								// Supported image formats
-								// http://sourceforge.net/apps/mediawiki/zbar/index.php?title=Supported_image_formats
-								Image barcode = ZBarManager.getImageInstance(width, height, "NV21", byteArray);
-
-								int result = scanner.scanImage(barcode);
-								
-								System.out.println("result of scan: " + result);
-								
-								byteArray = null;
-								
-								int quality = 0;
-								Symbol symbol = null;
-								
-								if (result != 0) 
-								{
-									SymbolSet syms = scanner.getResults();
-									for (Symbol sym : syms) {
-										System.out.println("Quality of Scan (Higher than 0 is good): " + sym.getQuality());
-										if(sym.getQuality() > quality)
-										{
-											symbol = sym;
-										}
-									}
-
-									if(symbol != null && successCallback != null)
-									{
-										HashMap results = new HashMap();
-										
-										results.put("data", symbol.getData());
-										results.put("type", symbol.getType());
-										
-										successCallback.callAsync(getKrollObject(), results);
-									}
-								}
-								else
-								{
-									// do error callback
-								}
-							}
-						}
-					}
-
-					public void onError(Activity activity, int requestCode,
-							Exception e) {
-						String msg = "Gallery problem: " + e.getMessage();
-						Log.e(LCAT, msg, e);
-					}
-				});
-	}
-	
-	public String getRealPathFromURI(Uri contentUri) {
-        String [] proj = {MediaStore.Images.Media.DATA};
-        Cursor cursor = TiApplication.getAppRootOrCurrentActivity().managedQuery( contentUri, proj, null, null,null);
-        
-        if (cursor == null)
-        {
-        	return null;
-        }
- 
-        int column_index    = cursor.getColumnIndexOrThrow(MediaStore.Images.Media.DATA);
-        cursor.moveToFirst();
-        return cursor.getString(column_index);
-    }
 
 	public static String getModuleid() {
 		return moduleId;

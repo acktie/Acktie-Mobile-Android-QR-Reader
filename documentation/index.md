@@ -238,8 +238,16 @@ Example:
 
 Example:
 
-	scanQRFromCamera(
-	{
+	var options = {
+		// ** Android QR Reader properties (ignored by iOS)
+		backgroundColor : 'black',
+		width : '100%',
+		height : '90%',
+		top : 0,
+		left : 0,
+		// **
+
+		// ** Used by both iOS and Android
 		overlay: {
 			imageName: "myOverlay.png",
 			alpha: 0.35f
@@ -247,7 +255,9 @@ Example:
 		success : success,
 		cancel : cancel,
 		error : error,
-	});
+	};
+	
+	var qrCodeView = createQRCodeView(options);
 	
 NOTE: Specifying an imageName will override any color/layout that is also specified in the same overlay property. Meaning, when they are both specified imageName will take precedence.
 

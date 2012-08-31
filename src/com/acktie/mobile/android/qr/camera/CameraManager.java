@@ -82,7 +82,7 @@ public class CameraManager {
 
 		if (parameters != null) {
 			List<String> flashModes = parameters.getSupportedFlashModes();
-			if (flashModes.contains(Camera.Parameters.FLASH_MODE_OFF)) {
+			if (flashModes != null && flashModes.contains(Camera.Parameters.FLASH_MODE_OFF)) {
 				parameters.setFlashMode(Camera.Parameters.FLASH_MODE_OFF);
 			}
 			camera.setParameters(parameters);
@@ -91,7 +91,19 @@ public class CameraManager {
 	}
 
 	public void enableAutoFocus() {
-		camera.autoFocus(autoFocusCB);
+		Camera.Parameters parameters = getCameraParameters();
+		
+		if (parameters != null) {
+			List<String> focusModes = parameters.getSupportedFocusModes();
+
+			if(focusModes != null && focusModes.contains(Camera.Parameters.FOCUS_MODE_AUTO)) {
+				Log.d(LCAT, "FOCUS_MODE_AUTO supported");
+				camera.autoFocus(autoFocusCB);
+			}
+			else {
+				Log.d(LCAT, "FOCUS_MODE_AUTO NOT supported");
+			}
+		}
 	}
 
 	public void stop() {

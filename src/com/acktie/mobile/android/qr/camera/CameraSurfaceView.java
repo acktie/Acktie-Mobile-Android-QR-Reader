@@ -48,12 +48,12 @@ public class CameraSurfaceView extends SurfaceView implements
 		parameters.setPreviewSize(size.width, size.height);
 		camera.setParameters(parameters);
 		camera.startPreview();
+		cameraManager.enableAutoFocus();
 	}
 
 	@Override
 	public void surfaceCreated(SurfaceHolder holder) {
 		try {
-			cameraManager.enableAutoFocus();
 			camera.setPreviewCallback(cameraPreviewCallback);
 			camera.setPreviewDisplay(holder);
 		} catch (IOException e) {

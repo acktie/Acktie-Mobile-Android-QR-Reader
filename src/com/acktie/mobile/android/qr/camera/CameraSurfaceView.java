@@ -14,6 +14,7 @@ public class CameraSurfaceView extends SurfaceView implements
 	private CameraManager cameraManager = null;
 	private Camera camera = null;
 	private PreviewCallback cameraPreviewCallback = null;
+	private static final String LCAT = "AcktiemobileandroidbarcodeModule:CameraSurfaceView";
 
 	public CameraSurfaceView(Context context,
 			PreviewCallback cameraPreviewCallback, CameraManager cameraManager) {
@@ -45,7 +46,37 @@ public class CameraSurfaceView extends SurfaceView implements
 		
 		Camera.Size size = cameraManager.getBestPreviewSize(camera, width,
 				height);
-		parameters.setPreviewSize(size.width, size.height);
+		
+		int previewWidth = width;
+		int previewHeight = height;
+		
+		if(size != null)
+		{
+			previewWidth = size.width;
+			previewHeight = size.height;
+		}
+		// If size is null try and reverse height and width.
+		// Thanks HTC desire
+		else
+		{
+			size = cameraManager.getBestPreviewSize(camera, height,
+					width);
+			
+			if(size != null)
+			{
+				previewWidth = size.width;
+				previewHeight = size.height;
+			}
+			else
+			{
+				previewWidth = 640;
+				previewHeight = 480;
+			}
+		}
+		
+		Log.d(LCAT, "Setting Preview Size to: " + previewWidth + "x" + previewHeight);
+		parameters.setPreviewSize(previewWidth, previewHeight);
+		
 		camera.setParameters(parameters);
 		camera.startPreview();
 		cameraManager.enableAutoFocus();

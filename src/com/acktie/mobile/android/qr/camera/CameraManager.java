@@ -30,12 +30,19 @@ public class CameraManager {
 
 	// http://stackoverflow.com/questions/5540981/picture-distorted-with-camera-and-getoptimalpreviewsize
 	public Camera.Size getBestPreviewSize(Camera camera, int width, int height) {
+		Log.d(LCAT, "width: " + width);
+		Log.d(LCAT, "heigth: " + height);
+		
 		Camera.Size result = null;
 		Camera.Parameters parameters = getCameraParameters();
 
+		Log.d(LCAT, "parameters: " + parameters);
+		
 		// If null, likely called after camera has been released.
 		if (parameters != null) {
+			Log.d(LCAT, "# of Supported Preview Sizes: " + parameters.getSupportedPreviewSizes().size());
 			for (Camera.Size size : parameters.getSupportedPreviewSizes()) {
+				Log.d(LCAT, "Size: " + size.width + ", " + size.height);
 				if (size.width <= width && size.height <= height) {
 					if (result == null) {
 						result = size;
@@ -51,6 +58,7 @@ public class CameraManager {
 			}
 		}
 
+		Log.d(LCAT, "result: " + result);
 		return result;
 	}
 

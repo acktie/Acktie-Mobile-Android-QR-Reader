@@ -2,6 +2,10 @@ package com.acktie.mobile.android.qr;
 
 import org.appcelerator.kroll.KrollFunction;
 
+import com.acktie.mobile.android.qr.camera.CameraManager;
+
+import android.hardware.Camera;
+
 public class InputArgs {
 
 	public static final String CONTINUOUS = "continuous";
@@ -35,6 +39,9 @@ public class InputArgs {
 	private float alpha = 1.0f;
 	
 	public static final String OVERLAY = "overlay";
+	
+	public static final String USE_FRONT_CAMERA = "useFrontCamera";
+	private int cameraDevice = CameraManager.AUTO_DETACT_CAMERA_FACING;
 
 	public boolean isContinuous() {
 		return continuous;
@@ -138,4 +145,11 @@ public class InputArgs {
 		this.alpha = alpha;
 	}
 
+	public int getCameraDevice() {
+		return cameraDevice;
+	}
+
+	public void setCameraDevice(int cameraDevice) {
+		this.cameraDevice = cameraDevice;
+	}
 }

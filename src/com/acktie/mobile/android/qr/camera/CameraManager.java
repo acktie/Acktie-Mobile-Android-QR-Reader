@@ -13,34 +13,39 @@ public class CameraManager {
 	private static final String LCAT = "AcktiemobileandroidqrModule:CameraManager";
 	private static final boolean DBG = TiConfig.LOGD;
 
+	public static final int AUTO_DETACT_CAMERA_FACING = 99;
+
 	private CameraCallback cameraCallback = null;
 	private Camera camera = null;
+	private int cameraDevice = AUTO_DETACT_CAMERA_FACING;
 	private boolean isStopped = true;
 	private boolean torchOn = false;
 	private Handler autoFocusHandler = null;
 
-	public CameraManager(CameraCallback cameraCallback) {
-		this();
+	public CameraManager(CameraCallback cameraCallback, int cameraDevice) {
+		this(cameraDevice);
 		this.cameraCallback = cameraCallback;
+		this.cameraDevice = cameraDevice;
 	}
 
-	public CameraManager() {
-		this.camera = getCamera();
+	public CameraManager(int cameraDevice) {
+		this.cameraDevice = cameraDevice;
 	}
 
 	// http://stackoverflow.com/questions/5540981/picture-distorted-with-camera-and-getoptimalpreviewsize
 	public Camera.Size getBestPreviewSize(Camera camera, int width, int height) {
 		Log.d(LCAT, "width: " + width);
 		Log.d(LCAT, "heigth: " + height);
-		
+
 		Camera.Size result = null;
 		Camera.Parameters parameters = getCameraParameters();
 
 		Log.d(LCAT, "parameters: " + parameters);
-		
+
 		// If null, likely called after camera has been released.
 		if (parameters != null) {
-			Log.d(LCAT, "# of Supported Preview Sizes: " + parameters.getSupportedPreviewSizes().size());
+			Log.d(LCAT, "# of Supported Preview Sizes: "
+					+ parameters.getSupportedPreviewSizes().size());
 			for (Camera.Size size : parameters.getSupportedPreviewSizes()) {
 				Log.d(LCAT, "Size: " + size.width + ", " + size.height);
 				if (size.width <= width && size.height <= height) {
@@ -77,11 +82,14 @@ public class CameraManager {
 
 		if (parameters != null) {
 			List<String> flashModes = parameters.getSupportedFlashModes();
-			if (flashModes.contains(Camera.Parameters.FLASH_MODE_TORCH)) {
-				parameters.setFlashMode(Camera.Parameters.FLASH_MODE_TORCH);
+
+			if (flashModes != null) {
+				if (flashModes.contains(Camera.Parameters.FLASH_MODE_TORCH)) {
+					parameters.setFlashMode(Camera.Parameters.FLASH_MODE_TORCH);
+				}
+				camera.setParameters(parameters);
+				torchOn = true;
 			}
-			camera.setParameters(parameters);
-			torchOn = true;
 		}
 	}
 
@@ -90,7 +98,8 @@ public class CameraManager {
 
 		if (parameters != null) {
 			List<String> flashModes = parameters.getSupportedFlashModes();
-			if (flashModes != null && flashModes.contains(Camera.Parameters.FLASH_MODE_OFF)) {
+			if (flashModes != null
+					&& flashModes.contains(Camera.Parameters.FLASH_MODE_OFF)) {
 				parameters.setFlashMode(Camera.Parameters.FLASH_MODE_OFF);
 			}
 			camera.setParameters(parameters);
@@ -100,15 +109,15 @@ public class CameraManager {
 
 	public void enableAutoFocus() {
 		Camera.Parameters parameters = getCameraParameters();
-		
+
 		if (parameters != null) {
 			List<String> focusModes = parameters.getSupportedFocusModes();
 
-			if(focusModes != null && focusModes.contains(Camera.Parameters.FOCUS_MODE_AUTO)) {
+			if (focusModes != null
+					&& focusModes.contains(Camera.Parameters.FOCUS_MODE_AUTO)) {
 				Log.d(LCAT, "FOCUS_MODE_AUTO supported");
 				camera.autoFocus(autoFocusCB);
-			}
-			else {
+			} else {
 				Log.d(LCAT, "FOCUS_MODE_AUTO NOT supported");
 			}
 		}
@@ -124,13 +133,56 @@ public class CameraManager {
 		}
 	}
 
-	public Camera getCamera() {
-		if (isStopped) {
-			camera = Camera.open();
+	public Camera getCamera(int cameraDevice) {
+		int numOfCameras = Camera.getNumberOfCameras();
+		if (numOfCameras > 0) {
+			Log.d(LCAT, numOfCameras + " cameras has been found.");
+			if (cameraDevice == AUTO_DETACT_CAMERA_FACING) {
+				camera = Camera.open(0);
+			} else {
+				int cameraId = getCameraId(cameraDevice);
+
+				if (cameraId != -1) {
+					camera = Camera.open(cameraId);
+				} else {
+					// If user specified a camera facing that the device does
+					// not have ignore preference and
+					// open the first camera
+
+					camera = Camera.open(0);
+				}
+			}
 			isStopped = false;
 		}
 
 		return camera;
+	}
+
+	/**
+	 * Will return the camera id for the specified cameraFacing See
+	 * Camera.CameraInfo for camera facing int. If 99 is specified then it will
+	 * auto-detect the first camera.
+	 * 
+	 * @param cameraFacing
+	 * @return
+	 */
+	public int getCameraId(int cameraDevice) {
+		int cameraId = -1;
+		int numOfCameras = Camera.getNumberOfCameras();
+
+		// This method will only return the first found camera
+		for (int i = 0; i < numOfCameras; i++) {
+			Camera.CameraInfo cInfo = new Camera.CameraInfo();
+			Camera.getCameraInfo(i, cInfo);
+
+			if (cInfo.facing == AUTO_DETACT_CAMERA_FACING
+					|| cInfo.facing == cameraDevice) {
+				cameraId = i;
+				break;
+			}
+		}
+
+		return cameraId;
 	}
 
 	public void takePicture() {
@@ -164,25 +216,27 @@ public class CameraManager {
 
 		return parameters;
 	}
-	
-    // Mimic continuous auto-focusing
-    private AutoFocusCallback autoFocusCB = new AutoFocusCallback() {
-        public void onAutoFocus(boolean success, Camera camera) {
-        	if(autoFocusHandler == null)
-        	{
-        		autoFocusHandler = new Handler();
-        	}
-        	
-            autoFocusHandler.postDelayed(doAutoFocus, 1000);
-        }
-    };
-    
+
+	// Mimic continuous auto-focusing
+	private AutoFocusCallback autoFocusCB = new AutoFocusCallback() {
+		public void onAutoFocus(boolean success, Camera camera) {
+			if (autoFocusHandler == null) {
+				autoFocusHandler = new Handler();
+			}
+
+			autoFocusHandler.postDelayed(doAutoFocus, 1000);
+		}
+	};
+
 	private Runnable doAutoFocus = new Runnable() {
-        public void run() {
-            if (!isStopped)
-            {
-            	camera.autoFocus(autoFocusCB);
-            }       
-        }
-    };
+		public void run() {
+			if (!isStopped) {
+				camera.autoFocus(autoFocusCB);
+			}
+		}
+	};
+
+	public Camera getCamera() {
+		return getCamera(cameraDevice);
+	}
 }

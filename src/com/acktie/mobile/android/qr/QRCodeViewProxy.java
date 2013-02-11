@@ -17,6 +17,7 @@ import org.appcelerator.titanium.view.TiUIView;
 import com.acktie.mobile.android.qr.camera.CameraManager;
 
 import android.app.Activity;
+import android.hardware.Camera;
 
 /**
  * @author TNuzzi
@@ -42,7 +43,7 @@ public class QRCodeViewProxy extends TiViewProxy {
 	@Override
 	public TiUIView createView(Activity arg0) {
 		Log.d(LCAT, "Creating QRCodeView");
-		cameraManager = new CameraManager();
+		cameraManager = new CameraManager(args.getCameraDevice());
 		TiUIView view = new QRCodeView(this, cameraManager, args);
 		view.getLayoutParams().autoFillsHeight = true;
 		view.getLayoutParams().autoFillsWidth = true;
@@ -74,6 +75,16 @@ public class QRCodeViewProxy extends TiViewProxy {
 		}
 		if (hasProperty(InputArgs.SCAN_FROM_IMAGE_CAPTURE)) {
 			args.setScanQRFromImageCapture(TiConvert.toBoolean(getProperty(InputArgs.SCAN_FROM_IMAGE_CAPTURE)));
+		}
+		if (hasProperty(InputArgs.USE_FRONT_CAMERA)) {
+			if(TiConvert.toBoolean(getProperty(InputArgs.USE_FRONT_CAMERA)))
+			{
+				args.setCameraDevice(Camera.CameraInfo.CAMERA_FACING_FRONT);
+			}
+			else
+			{
+				args.setCameraDevice(Camera.CameraInfo.CAMERA_FACING_BACK);
+			}
 		}
 		if (hasProperty(InputArgs.OVERLAY)) {
 			HashMap overlay = (HashMap) getProperty(InputArgs.OVERLAY);

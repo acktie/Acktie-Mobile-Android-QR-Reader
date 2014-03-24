@@ -8,37 +8,11 @@
  */
 package com.acktie.mobile.android.qr;
 
-import java.io.File;
-import java.io.IOException;
-import java.util.HashMap;
-
-import net.sourceforge.zbar.Image;
-import net.sourceforge.zbar.ImageScanner;
-import net.sourceforge.zbar.Symbol;
-import net.sourceforge.zbar.SymbolSet;
-
-import org.appcelerator.kroll.KrollDict;
-import org.appcelerator.kroll.KrollFunction;
 import org.appcelerator.kroll.KrollModule;
 import org.appcelerator.kroll.annotations.Kroll;
-
-import org.appcelerator.titanium.TiApplication;
-import org.appcelerator.titanium.util.TiActivityResultHandler;
-import org.appcelerator.titanium.util.TiActivitySupport;
-import org.appcelerator.titanium.util.TiIntentWrapper;
 import org.appcelerator.kroll.common.Log;
-import org.appcelerator.kroll.common.TiConfig;
+import org.appcelerator.titanium.TiApplication;
 
-import com.acktie.mobile.android.qr.zbar.ZBarManager;
-import com.google.common.io.Files;
-
-import android.app.Activity;
-import android.content.Intent;
-import android.database.Cursor;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
-import android.net.Uri;
-import android.provider.MediaStore;
 
 @Kroll.module(name = "Acktiemobileandroidqr", id = "com.acktie.mobile.android.qr")
 public class AcktiemobileandroidqrModule extends KrollModule {
@@ -51,7 +25,6 @@ public class AcktiemobileandroidqrModule extends KrollModule {
 
 	// Standard Debugging variables
 	private static final String LCAT = "AcktiemobileandroidqrModule";
-	private static final boolean DBG = TiConfig.LOGD;
 
 	// You can define constants with @Kroll.constant, for example:
 	// @Kroll.constant public static final String EXTERNAL_NAME = value;

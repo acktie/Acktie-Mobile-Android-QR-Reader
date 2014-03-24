@@ -1,7 +1,6 @@
 tmp
 bin
 build
-*.zip
 .apt_generated
 *.class
 *.merge-left*
@@ -14,6 +13,4 @@ build
 .svn
 _svn
 svn-commit*.tmp
-dist
-dist/acktiemobileandroidqr.jar
 .DS_Store

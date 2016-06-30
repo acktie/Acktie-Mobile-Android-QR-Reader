@@ -62,9 +62,6 @@ public class QRCodeViewProxy extends TiViewProxy {
 		if (hasProperty(QRInputArgs.CANCEL_CALLBACK)) {
 			args.setCancelCallback((KrollFunction) getProperty(QRInputArgs.CANCEL_CALLBACK));
 		}
-		if (hasProperty(QRInputArgs.USE_JIS_ENCODING)) {
-			args.setUseJISEncoding(TiConvert.toBoolean(getProperty(QRInputArgs.USE_JIS_ENCODING)));
-		}
 		if (hasProperty(QRInputArgs.USE_FRONT_CAMERA)) {
 			if(TiConvert.toBoolean(getProperty(QRInputArgs.USE_FRONT_CAMERA)))
 			{

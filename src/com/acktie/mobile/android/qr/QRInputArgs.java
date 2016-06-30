@@ -7,9 +7,6 @@ import com.acktie.mobile.android.camera.CameraManager;
 
 public class QRInputArgs implements InputArgs{
 	
-	public static final String USE_JIS_ENCODING = "useJISEncoding";
-	private boolean useJISEncoding = false;
-	
 	public static final String SUCCESS_CALLBACK = "success";
 	private KrollFunction successCallback = null;
 	
@@ -19,15 +16,8 @@ public class QRInputArgs implements InputArgs{
 	public static final String USE_FRONT_CAMERA = "useFrontCamera";
 	private int cameraDevice = CameraManager.AUTO_DETACT_CAMERA_FACING;
 	
-	private static final boolean USE_ZBAR = true;
-
-	public boolean isUseJISEncoding() {
-		return useJISEncoding;
-	}
-
-	public void setUseJISEncoding(boolean useJISEncoding) {
-		this.useJISEncoding = useJISEncoding;
-	}
+	private boolean isContinuous = false;
+	private boolean isScanFromImageCapture = false;
 
 	public KrollFunction getSuccessCallback() {
 		return successCallback;
@@ -54,7 +44,23 @@ public class QRInputArgs implements InputArgs{
 	}
 
 	@Override
-	public boolean scanUsingZBar() {
-		return USE_ZBAR;
+ 	public boolean isContinuous() {
+ 		// TODO Auto-generated method stub
+ 		return isContinuous;
+ 	}
+
+ 	@Override
+ 	public boolean isScanFromImageCapture() {
+ 		return isScanFromImageCapture;
+ 	}
+
+ 	@Override
+ 	public void setContinuous(boolean arg0) {
+ 		isContinuous = arg0;
+ 	}
+ 
+ 	@Override
+ 	public void setScanFromImageCapture(boolean arg0) {
+ 		isScanFromImageCapture = arg0;
 	}
 }

@@ -1,5 +1,43 @@
 # Acktie Mobile QR Reader Module (Android)
 
+***THIS FORK WAS REBUILT WITH THE FIXES FROM THE LATEST Acktie-Zbar-Android PROJECT***
+
+To use this as the Android QR Scanning module in a titanium project, unzip [dist/com.acktie.mobile.android.qr-android-2.1.zip](https://github.com/jkotchoff/Acktie-Mobile-Android-QR-Reader/blob/master/dist/com.acktie.mobile.android.qr-android-2.1.zip?raw=true) into your titanium android modules directory and use it as per the instructions at [Acktie-Mobile-Android-QR-Reader](https://github.com/acktie/Acktie-Mobile-Android-QR-Reader).
+
+This fork addresses stability issues documented at:
+[issues/12](https://github.com/acktie/Acktie-Mobile-Android-QR-Reader/issues/12)
+[issues/6](https://github.com/acktie/Acktie-Mobile-Android-QR-Reader/issues/6)
+[issues/2](https://github.com/acktie/Acktie-Mobile-Android-QR-Reader/issues/2)
+
+Those issues were resolved in the latest [commits](https://github.com/acktie/Acktie-Zbar-Android/commits/master) to the [Acktie-Zbar-Android](https://github.com/acktie/Acktie-Zbar-Android) project
+
+ie. This addresses Android QR crashes like:
+```
+[ERROR] AndroidRuntime: FATAL EXCEPTION: main
+[ERROR] AndroidRuntime: Process: com.geoplus.qrapp, PID: 18765
+[ERROR] AndroidRuntime: java.lang.RuntimeException: autoFocus failed
+[ERROR] AndroidRuntime:   at android.hardware.Camera.native_autoFocus(Native Method)
+[ERROR] AndroidRuntime:   at android.hardware.Camera.autoFocus(Camera.java:1347)
+[ERROR] AndroidRuntime:   at com.acktie.mobile.android.camera.CameraManager$2.run(CameraManager.java:232)
+[ERROR] AndroidRuntime:   at android.os.Handler.handleCallback(Handler.java:739)
+
+
+[ERROR] AndroidRuntime: FATAL EXCEPTION: main
+[ERROR] AndroidRuntime: Process: com.geoplus.qrapp, PID: 31643
+[ERROR] AndroidRuntime: java.lang.RuntimeException: Camera is being used after Camera.release() was called
+[ERROR] AndroidRuntime:   at android.hardware.Camera.native_autoFocus(Native Method)
+[ERROR] AndroidRuntime:   at android.hardware.Camera.autoFocus(Camera.java:1347)
+[ERROR] AndroidRuntime:   at com.acktie.mobile.android.camera.CameraManager$2.run(CameraManager.java:232)
+[ERROR] AndroidRuntime:   at android.os.Handler.handleCallback(Handler.java:739)
+[ERROR] AndroidRuntime:   at android.os.Handler.dispatchMessage(Handler.java:95)
+[ERROR] AndroidRuntime:   at android.os.Looper.loop(Looper.java:158)
+
+[ERROR] AndroidRuntime: java.lang.NullPointerException: Attempt to invoke virtual method 'void android.hardware.Camera.setPreviewCallback(android.hardware.Camera$PreviewCallback)' on a null object reference
+[ERROR] AndroidRuntime:   at com.acktie.mobile.android.camera.CameraSurfaceView.surfaceCreated(CameraSurfaceView.java:87)
+[ERROR] AndroidRuntime:   at android.view.SurfaceView.updateWindow(SurfaceView.java:712)
+[ERROR] AndroidRuntime:   at android.view.SurfaceView.onWindowVisibilityChanged(SurfaceView.java:316)
+```
+
 ## Example
 
 A working example of how to use this module can be found on Github at

@@ -46,7 +46,7 @@ public class QRCodeView extends TiUIView {
 		TiCompositeLayout layout = new TiCompositeLayout(proxy.getActivity(),
 				arrangement);
 
-		CameraCallback cameraCallback = new CameraCallback(QR_CODE_SYMBOL, qrCodeViewProxy, cameraManager, args);
+		CameraCallback cameraCallback = new CameraCallback(qrCodeViewProxy, cameraManager, args);
 		cameraManager.setCameraCallback(cameraCallback);
 		cameraPreview = new CameraSurfaceView(proxy.getActivity(), cameraCallback, cameraManager);
 

@@ -1,7 +1,5 @@
 package com.acktie.mobile.android.qr;
 
-import net.sourceforge.zbar.Symbol;
-
 import org.appcelerator.titanium.TiC;
 import org.appcelerator.titanium.proxy.TiViewProxy;
 import org.appcelerator.titanium.util.TiConvert;
@@ -20,8 +18,6 @@ public class QRCodeView extends TiUIView {
 	CameraSurfaceView cameraPreview = null;
 	CameraManager cameraManager = null;
 	
-
-	private static int[] QR_CODE_SYMBOL = { Symbol.QRCODE };
 
 	public QRCodeView(TiViewProxy proxy, final CameraManager cameraManager,
 			QRInputArgs args) {

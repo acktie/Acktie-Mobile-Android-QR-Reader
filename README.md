@@ -41,8 +41,7 @@ ie. This addresses Android QR crashes like:
 ## Example
 
 A working example of how to use this module can be found on Github at
-[https://github.com/acktie/Acktie-Mobile-QR-Example](https://github.com/acktie
-/Acktie-Mobile-QR-Example).
+[https://github.com/acktie/Acktie-Mobile-QR-Example](https://github.com/acktie/Acktie-Mobile-QR-Example).
 
 ## Description
 

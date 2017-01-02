@@ -1,1 +1,1 @@
-rm -rf build;ant dist;rm -rf ~/Library/Application\ Support/Titanium/modules/android/com.acktie.mobile.android.qr/; unzip dist/com.acktie.mobile.android.qr-android-2.0.zip -d ~/Library/Application\ Support/Titanium/;
+rm -rf build;ant dist;rm -rf ~/Library/Application\ Support/Titanium/modules/android/com.acktie.mobile.android.qr/; unzip dist/com.acktie.mobile.android.qr-android-3.0.0.zip -d ~/Library/Application\ Support/Titanium/;

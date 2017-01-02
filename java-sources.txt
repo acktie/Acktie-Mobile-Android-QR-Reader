@@ -1,0 +1,4 @@
+"/Users/hknoechel/Documents/appcelerator_modules/Acktie-Mobile-Android-QR-Reader/src/com/acktie/mobile/android/qr/AcktiemobileandroidqrModule.java"
+"/Users/hknoechel/Documents/appcelerator_modules/Acktie-Mobile-Android-QR-Reader/src/com/acktie/mobile/android/qr/QRCodeView.java"
+"/Users/hknoechel/Documents/appcelerator_modules/Acktie-Mobile-Android-QR-Reader/src/com/acktie/mobile/android/qr/QRCodeViewProxy.java"
+"/Users/hknoechel/Documents/appcelerator_modules/Acktie-Mobile-Android-QR-Reader/src/com/acktie/mobile/android/qr/QRInputArgs.java"

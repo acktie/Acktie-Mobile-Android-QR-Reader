@@ -14,3 +14,4 @@ build
 _svn
 svn-commit*.tmp
 .DS_Store
+/java-sources.txt
